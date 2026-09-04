@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -26,7 +25,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "payments")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Payment {
 
@@ -83,15 +81,15 @@ public class Payment {
             String currency
     ) {
         Payment payment = new Payment();
-        payment.setId(UUID.randomUUID());
-        payment.setMerchant(merchant);
-        payment.setCustomer(customer);
-        payment.setSubscription(subscription);
-        payment.setAmount(amount);
-        payment.setCurrency(currency);
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setAttemptCount(0);
-        payment.setCreatedAt(Instant.now());
+        payment.id = UUID.randomUUID();
+        payment.merchant = merchant;
+        payment.customer = customer;
+        payment.subscription = subscription;
+        payment.amount = amount;
+        payment.currency = currency;
+        payment.status = PaymentStatus.PENDING;
+        payment.attemptCount = 0;
+        payment.createdAt = Instant.now();
         return payment;
     }
 
