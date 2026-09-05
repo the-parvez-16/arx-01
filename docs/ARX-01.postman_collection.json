@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "b5847eb3-f01e-4a7a-be66-45546307e1be",
+    "name": "ARX-01",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "41718731"
+  },
+  "item": [
+    {
+      "name": "api-gateway",
+      "item": [
+        {
+          "name": "create-payment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"11111111-1111-1111-1111-111111111111\",\n  \"customerId\": \"22222222-2222-2222-2222-222222222222\",\n  \"subscriptionId\": \"33333333-3333-3333-3333-333333333333\",\n  \"amount\": 2000,\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/payments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments/ff006025-7240-4524-adf3-657c189c2f08",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "ff006025-7240-4524-adf3-657c189c2f08"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "simulate-failure",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"failureReason\": \"INSUFFICIENT_FUNDS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments/9a63ea61-e706-4cb7-b67a-3e8b0eb47b76/simulate-failure",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "9a63ea61-e706-4cb7-b67a-3e8b0eb47b76",
+                "simulate-failure"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create-recovery-case",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"11111111-1111-1111-1111-111111111111\",\n  \"paymentId\": \"9a63ea61-e706-4cb7-b67a-3e8b0eb47b76\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/recovery-cases",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "execute-recovery-case",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/recovery-cases/48d90ef4-5d66-4c32-a5b5-e8de6a7f5b71/execute",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases",
+                "48d90ef4-5d66-4c32-a5b5-e8de6a7f5b71",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "audit-events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/audit-events?recoveryCaseId=48d90ef4-5d66-4c32-a5b5-e8de6a7f5b71",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "audit-events"
+              ],
+              "query": [
+                {
+                  "key": "recoveryCaseId",
+                  "value": "48d90ef4-5d66-4c32-a5b5-e8de6a7f5b71"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "recovery-attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/recovery-cases/35eb0570-f839-46fc-8214-efe76aab3717/attempts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases",
+                "35eb0570-f839-46fc-8214-efe76aab3717",
+                "attempts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "payment-service",
+      "item": [
+        {
+          "name": "add-payment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"merchantId\": \"11111111-1111-1111-1111-111111111111\",\n    \"customerId\": \"22222222-2222-2222-2222-222222222222\",\n    \"subscriptionId\": \"33333333-3333-3333-3333-333333333333\",\n    \"amount\": 200,\n    \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments/19216920-4d7b-4863-ab5e-fb3cec64926b",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "19216920-4d7b-4863-ab5e-fb3cec64926b"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "simulate-failure",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"failureReason\": \"INSUFFICIENT_FUNDS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments/3def0eea-9d33-4873-be7d-3be6c5b0632a/simulate-failure",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "3def0eea-9d33-4873-be7d-3be6c5b0632a",
+                "simulate-failure"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "retry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8083/api/v1/payments/310f8291-1fbe-4f5f-88ee-d5e3ede5dddf/retry",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "310f8291-1fbe-4f5f-88ee-d5e3ede5dddf",
+                "retry"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "recovery-service",
+      "item": [
+        {
+          "name": "create-recovery-case",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"11111111-1111-1111-1111-111111111111\",\n  \"paymentId\": \"3def0eea-9d33-4873-be7d-3be6c5b0632a\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/recovery-cases",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "execute-recovery-case",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/recovery-cases/cfca7586-d8e0-45d3-ba51-76b5f1bd1e14/execute",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases",
+                "cfca7586-d8e0-45d3-ba51-76b5f1bd1e14",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "recovery-attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/recovery-cases/cfca7586-d8e0-45d3-ba51-76b5f1bd1e14/attempts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "recovery-cases",
+                "cfca7586-d8e0-45d3-ba51-76b5f1bd1e14",
+                "attempts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "decision-service",
+      "item": []
+    },
+    {
+      "name": "audit-service",
+      "item": [
+        {
+          "name": "auditByrecoveryCaseId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8084/api/v1/audit-events?recoveryCaseId=cfca7586-d8e0-45d3-ba51-76b5f1bd1e14",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8084",
+              "path": [
+                "api",
+                "v1",
+                "audit-events"
+              ],
+              "query": [
+                {
+                  "key": "recoveryCaseId",
+                  "value": "cfca7586-d8e0-45d3-ba51-76b5f1bd1e14"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
