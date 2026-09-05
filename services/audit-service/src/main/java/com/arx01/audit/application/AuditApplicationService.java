@@ -6,6 +6,7 @@ import com.arx01.audit.domain.repository.AuditEventRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -35,5 +36,10 @@ public class AuditApplicationService {
                 payload
         );
         return auditEventRepository.save(auditEvent);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AuditEvent> getAuditEventsByRecoveryCaseId(UUID recoveryCaseId) {
+        return auditEventRepository.findByRecoveryCaseIdOrderByCreatedAtAsc(recoveryCaseId);
     }
 }
