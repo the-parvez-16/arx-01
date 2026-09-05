@@ -99,4 +99,13 @@ public class Payment {
         this.failedAt = Instant.now();
         this.attemptCount++;
     }
+
+    public void retry() {
+        if (this.status != PaymentStatus.FAILED) {
+            throw new IllegalStateException("Payment can only be retried when in FAILED status. Current status: " + this.status);
+        }
+        this.status = PaymentStatus.SUCCEEDED;
+        this.recoveredAt = Instant.now();
+        this.attemptCount++;
+    }
 }

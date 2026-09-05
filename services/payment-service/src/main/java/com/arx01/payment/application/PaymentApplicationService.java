@@ -54,4 +54,12 @@ public class PaymentApplicationService {
         payment.markFailed(failureReason);
         return paymentRepository.save(payment);
     }
+
+    @Transactional
+    public Payment retryPayment(UUID paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found: " + paymentId));
+        payment.retry();
+        return paymentRepository.save(payment);
+    }
 }

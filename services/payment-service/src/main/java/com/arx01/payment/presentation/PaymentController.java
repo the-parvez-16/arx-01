@@ -50,6 +50,11 @@ public class PaymentController {
         return toResponse(paymentApplicationService.simulateFailure(paymentId, request.failureReason()));
     }
 
+    @PostMapping("/{paymentId}/retry")
+    public PaymentResponse retryPayment(@PathVariable UUID paymentId) {
+        return toResponse(paymentApplicationService.retryPayment(paymentId));
+    }
+
     private PaymentResponse toResponse(Payment payment) {
         return new PaymentResponse(
                 payment.getId(),
