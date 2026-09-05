@@ -13,6 +13,7 @@ import com.arx01.recovery.infrastructure.client.dto.DecisionResponse;
 import com.arx01.recovery.infrastructure.client.dto.PaymentResponse;
 import com.arx01.recovery.policy.PolicyDecision;
 import com.arx01.recovery.policy.RecoveryPolicyEngine;
+import com.arx01.recovery.presentation.dto.CreateRecoveryCaseResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,7 @@ public class RecoveryApplicationService {
     private final DecisionServiceClient decisionServiceClient;
     private final AuditServiceClient auditServiceClient;
 
-    @Transactional
-    public RecoveryCase createRecoveryCase(UUID merchantId, UUID paymentId) {
+    public CreateRecoveryCaseResponse createRecoveryCase(UUID merchantId, UUID paymentId) {
         if (recoveryCaseRepository.findByPaymentId(paymentId).isPresent()) {
             throw new IllegalStateException("Recovery case already exists for payment: " + paymentId);
         }
@@ -71,6 +71,19 @@ public class RecoveryApplicationService {
         auditServiceClient.sendAuditEvent(
                 merchantId,
                 recoveryCase.getId(),
+                "RECOVERY_CREATED",
+                "SYSTEM",
+                merchantId,
+                Map.of(
+                        "paymentId", paymentId,
+                        "amountAtRisk", amountAtRisk,
+                        "status", recoveryCase.getStatus()
+                )
+        );
+
+        auditServiceClient.sendAuditEvent(
+                merchantId,
+                recoveryCase.getId(),
                 "AI_RECOMMENDATION",
                 "SYSTEM",
                 merchantId,
@@ -82,7 +95,7 @@ public class RecoveryApplicationService {
                 )
         );
 
-        return recoveryCase;
+        return CreateRecoveryCaseResponse.from(recoveryCase, decision);
     }
 
     @Transactional
@@ -115,7 +128,8 @@ public class RecoveryApplicationService {
             attempt.complete(RecoveryOutcome.BLOCKED, null);
             recoveryAttemptRepository.save(attempt);
 
-            if (attemptNo >= RecoveryPolicyEngine.MAX_ATTEMPTS) {
+            boolean isExhausted = attemptNo >= RecoveryPolicyEngine.MAX_ATTEMPTS;
+            if (isExhausted) {
                 recoveryCase.markExhausted();
                 recoveryCaseRepository.save(recoveryCase);
             }
@@ -128,6 +142,17 @@ public class RecoveryApplicationService {
                     recoveryCase.getMerchantId(),
                     Map.of()
             );
+
+            if (isExhausted) {
+                auditServiceClient.sendAuditEvent(
+                        recoveryCase.getMerchantId(),
+                        recoveryCase.getId(),
+                        "RECOVERY_EXHAUSTED",
+                        "SYSTEM",
+                        recoveryCase.getMerchantId(),
+                        Map.of("attemptNo", attemptNo, "reason", "MAX_ATTEMPTS_REACHED")
+                );
+            }
 
             return recoveryCase;
         }
@@ -150,32 +175,54 @@ public class RecoveryApplicationService {
         attempt.complete(outcome, amountRecovered);
         recoveryAttemptRepository.save(attempt);
 
+        boolean isExhausted = false;
         if (isSucceeded) {
             recoveryCase.markRecovered();
             recoveryCaseRepository.save(recoveryCase);
         } else {
             if (attemptNo >= RecoveryPolicyEngine.MAX_ATTEMPTS) {
                 recoveryCase.markExhausted();
+                isExhausted = true;
             }
             recoveryCaseRepository.save(recoveryCase);
         }
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("attemptNo", attemptNo);
-        payload.put("action", recoveryCase.getRecommendedAction());
+        payload.put("action", recoveryCase.getExecutedAction());
         payload.put("outcome", outcome);
-        payload.put("amountRecovered", amountRecovered);
-
-        String eventType = isSucceeded ? "PAYMENT_RECOVERED" : "ACTION_EXECUTED";
+        if (amountRecovered != null) {
+            payload.put("amountRecovered", amountRecovered);
+        }
 
         auditServiceClient.sendAuditEvent(
                 recoveryCase.getMerchantId(),
                 recoveryCase.getId(),
-                eventType,
+                "ACTION_EXECUTED",
                 "SYSTEM",
                 recoveryCase.getMerchantId(),
                 payload
         );
+
+        if (isSucceeded) {
+            auditServiceClient.sendAuditEvent(
+                    recoveryCase.getMerchantId(),
+                    recoveryCase.getId(),
+                    "PAYMENT_RECOVERED",
+                    "SYSTEM",
+                    recoveryCase.getMerchantId(),
+                    payload
+            );
+        } else if (isExhausted) {
+            auditServiceClient.sendAuditEvent(
+                    recoveryCase.getMerchantId(),
+                    recoveryCase.getId(),
+                    "RECOVERY_EXHAUSTED",
+                    "SYSTEM",
+                    recoveryCase.getMerchantId(),
+                    Map.of("attemptNo", attemptNo, "reason", "MAX_ATTEMPTS_REACHED")
+            );
+        }
 
         return recoveryCase;
     }

@@ -5,6 +5,7 @@ import com.arx01.recovery.domain.RecoveryAttempt;
 import com.arx01.recovery.domain.RecoveryCase;
 import com.arx01.recovery.domain.enums.RecoveryStatus;
 import com.arx01.recovery.presentation.dto.CreateRecoveryCaseRequest;
+import com.arx01.recovery.presentation.dto.CreateRecoveryCaseResponse;
 import com.arx01.recovery.presentation.dto.RecoveryAttemptResponse;
 import com.arx01.recovery.presentation.dto.RecoveryCaseResponse;
 import jakarta.validation.Valid;
@@ -31,11 +32,11 @@ public class RecoveryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RecoveryCaseResponse createRecoveryCase(@Valid @RequestBody CreateRecoveryCaseRequest request) {
-        return toCaseResponse(recoveryApplicationService.createRecoveryCase(
+    public CreateRecoveryCaseResponse createRecoveryCase(@Valid @RequestBody CreateRecoveryCaseRequest request) {
+        return recoveryApplicationService.createRecoveryCase(
                 request.merchantId(),
                 request.paymentId()
-        ));
+        );
     }
 
     @GetMapping("/{id}")
